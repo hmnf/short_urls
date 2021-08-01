@@ -1,7 +1,8 @@
 <?php
 require './core/Request.php';
 
-class Router{
+class Router
+{
     public Request $request;
     protected array $routes = [];
 
@@ -10,36 +11,49 @@ class Router{
         $this->request = new Request;
     }
 
-    public function routes(string $endPoint, Callable $callbackFunc)
+    public function routes(string $endPoint, callable $callbackFunc, string $funcMethod)
     {
+        $method = $this->request->method();
         $uri = $this->request->uri();
-        if($endPoint == $uri){
-            return call_user_func($callbackFunc);
+        $uri = rtrim($uri, '/');
+        if ($endPoint == $uri) {
+            if ($method == $funcMethod) {
+                return call_user_func($callbackFunc);
+            } else {
+                return 'ERROR: method is not correct';
+            }
+        } else {
+            return 'ERROR: rout with this end point not exists';
         }
     }
 
-    public function get(string $endPoint, Callable $callbackFunc)
+    public function get(string $endPoint, callable $callbackFunc)
     {
-        $this->routes($endPoint, $callbackFunc);
+        $funcMethod = 'get';
+        $this->routes($endPoint, $callbackFunc, $funcMethod);
     }
 
-    public function post(string $endPoint, Callable $callbackFunc)
+    public function post(string $endPoint, callable $callbackFunc)
     {
-        $this->routes($endPoint, $callbackFunc);
+        $funcMethod = 'post';
+        $this->routes($endPoint, $callbackFunc, $funcMethod);
     }
 
-    public function put(string $endPoint, Callable $callbackFunc)
+    public function put(string $endPoint, callable $callbackFunc)
     {
-        $this->routes($endPoint, $callbackFunc);
+        $funcMethod = 'put';
+        $this->routes($endPoint, $callbackFunc, $funcMethod);
     }
 
-    public function patch(string $endPoint, Callable $callbackFunc)
+    public function patch(string $endPoint, callable $callbackFunc)
     {
-        $this->routes($endPoint, $callbackFunc);
+        $funcMethod = 'patch';
+        $this->routes($endPoint, $callbackFunc, $funcMethod);
     }
 
-    public function delete(string $endPoint, Callable $callbackFunc)
+    public function delete(string $endPoint, callable $callbackFunc)
     {
-        $this->routes($endPoint, $callbackFunc);
+        $funcMethod = 'delete';
+        $this->routes($endPoint, $callbackFunc, $funcMethod);
     }
 }
