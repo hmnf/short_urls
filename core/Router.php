@@ -45,22 +45,20 @@ class Router
 
     public function resolve()
     {
+        $methodRoute = [];
         if(array_key_exists($this->request->method(), $this->routes)){
             $methodRoute = $this->routes[$this->request->method()];
         }
         if(count($methodRoute) != 0){
             $uri = $this->request->uri();
-            $callbackKey = $methodRoute[$uri];
-            $callbackFunc = $callbackKey["callback"];
             if(array_key_exists($uri, $methodRoute)){
-                call_user_func($callbackFunc);
+                $route = $methodRoute[$uri];
+                call_user_func($route["callback"]);
             }else{
                 header("HTTP/1.1 404 Page Not Found");
-                exit();
             }
         }else{
             header("HTTP/1.1 400 Bad Request");
-            exit();
         }
     }
 }
