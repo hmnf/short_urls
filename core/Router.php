@@ -16,6 +16,11 @@ class Router
         $method = $this->request->method();
         $uri = $this->request->uri();
         $uri = rtrim($uri, '/');
+        // $uri = ltrim($uri, '/');
+        // $uriExp = explode('/', $uri);
+        // foreach($uriExp as $uriPart){
+        //     $uriPart = ltrim($uriPart, ':');
+        // }
         if ($endPoint == $uri) {
             if ($method == $funcMethod) {
                 return call_user_func($callbackFunc);
@@ -23,7 +28,7 @@ class Router
                 return 'ERROR: method is not correct';
             }
         } else {
-            return 'ERROR: rout with this end point not exists';
+            return 'ERROR: rout with this end point is not exists';
         }
     }
 

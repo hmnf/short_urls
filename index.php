@@ -4,8 +4,8 @@ require './core/Application.php';
 
 $app = new Application;
 
-$app->router->get('/users/user', function(){
-    echo 'users';
+$app->router->get('/users/:id', function($id){
+    echo 'id - '.$id;
 });
 
 $app->router->post('/url', function(){
