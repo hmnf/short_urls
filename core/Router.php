@@ -45,17 +45,22 @@ class Router
 
     public function resolve()
     {
-        $endPoint = $this->routes[$this->request->method()];
-        $uri = $this->request->uri();
-        foreach($endPoint as $endP => $callbackFuncKey){
-            foreach($callbackFuncKey as $callbackFunc){
-                if($endP == $uri){
-                    return call_user_func($callbackFunc);
-                }else{
-                    header("HTTP/1.1 Page Not Found");
-                    exit();
-                }
+        if(array_key_exists($this->request->method(), $this->routes)){
+            $methodRoute = $this->routes[$this->request->method()];
+        }
+        if(count($methodRoute) != 0){
+            $uri = $this->request->uri();
+            $callbackKey = $methodRoute[$uri];
+            $callbackFunc = $callbackKey["callback"];
+            if(array_key_exists($uri, $methodRoute)){
+                call_user_func($callbackFunc);
+            }else{
+                header("HTTP/1.1 404 Page Not Found");
+                exit();
             }
+        }else{
+            header("HTTP/1.1 400 Bad Request");
+            exit();
         }
     }
 }
