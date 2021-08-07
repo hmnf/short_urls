@@ -11,54 +11,51 @@ class Router
         $this->request = new Request;
     }
 
-    public function routes(string $endPoint, callable $callbackFunc, string $funcMethod)
+    public function arrayRoute(string $endPoint, callable $callbackFunc)
     {
-        $method = $this->request->method();
-        $uri = $this->request->uri();
-        $uri = rtrim($uri, '/');
-        // $uri = ltrim($uri, '/');
-        // $uriExp = explode('/', $uri);
-        // foreach($uriExp as $uriPart){
-        //     $uriPart = ltrim($uriPart, ':');
-        // }
-        if ($endPoint == $uri) {
-            if ($method == $funcMethod) {
-                return call_user_func($callbackFunc);
-            } else {
-                return 'ERROR: method is not correct';
-            }
-        } else {
-            return 'ERROR: rout with this end point is not exists';
-        }
+        $endPoint = rtrim($endPoint, "/");
+        $endPoint = ltrim($endPoint, "/");
+        return [$endPoint => ["callback" => $callbackFunc]];
     }
 
     public function get(string $endPoint, callable $callbackFunc)
     {
-        $funcMethod = 'get';
-        $this->routes($endPoint, $callbackFunc, $funcMethod);
+        $this->routes["get"] = $this->arrayRoute($endPoint, $callbackFunc);
     }
 
     public function post(string $endPoint, callable $callbackFunc)
     {
-        $funcMethod = 'post';
-        $this->routes($endPoint, $callbackFunc, $funcMethod);
+        $this->routes["post"] = $this->arrayRoute($endPoint, $callbackFunc);
     }
 
     public function put(string $endPoint, callable $callbackFunc)
     {
-        $funcMethod = 'put';
-        $this->routes($endPoint, $callbackFunc, $funcMethod);
+        $this->routes["put"] = $this->arrayRoute($endPoint, $callbackFunc);
     }
 
     public function patch(string $endPoint, callable $callbackFunc)
     {
-        $funcMethod = 'patch';
-        $this->routes($endPoint, $callbackFunc, $funcMethod);
+        $this->routes["patch"] = $this->arrayRoute($endPoint, $callbackFunc);
     }
 
     public function delete(string $endPoint, callable $callbackFunc)
     {
-        $funcMethod = 'delete';
-        $this->routes($endPoint, $callbackFunc, $funcMethod);
+        $this->routes["delete"] = $this->arrayRoute($endPoint, $callbackFunc);
+    }
+
+    public function resolve()
+    {
+        $endPoint = $this->routes[$this->request->method()];
+        $uri = $this->request->uri();
+        foreach($endPoint as $endP => $callbackFuncKey){
+            foreach($callbackFuncKey as $callbackFunc){
+                if($endP == $uri){
+                    return call_user_func($callbackFunc);
+                }else{
+                    header("HTTP/1.1 Page Not Found");
+                    exit();
+                }
+            }
+        }
     }
 }

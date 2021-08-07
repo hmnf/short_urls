@@ -4,8 +4,8 @@ require './core/Application.php';
 
 $app = new Application;
 
-$app->router->get('/users/:id', function($id){
-    echo 'id - '.$id;
+$app->router->get('/users/user', function(){
+    echo 'user';
 });
 
 $app->router->post('/url', function(){
@@ -23,3 +23,5 @@ $app->router->delete('/delete', function(){
 $app->router->put('/put', function(){
     echo 'put';
 });
+
+$app->run();
