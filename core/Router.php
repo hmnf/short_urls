@@ -4,7 +4,13 @@ require './core/Request.php';
 class Router
 {
     public Request $request;
-    protected array $routes = [];
+    protected array $routes = [
+        "get" => [],
+        "post" => [],
+        "patch" => [],
+        "put" => [],
+        "delete" => []
+    ];
 
     public function __construct()
     {
@@ -45,20 +51,14 @@ class Router
 
     public function resolve()
     {
-        $methodRoute = [];
-        if(array_key_exists($this->request->method(), $this->routes)){
-            $methodRoute = $this->routes[$this->request->method()];
-        }
-        if(count($methodRoute) != 0){
-            $uri = $this->request->uri();
-            if(array_key_exists($uri, $methodRoute)){
-                $route = $methodRoute[$uri];
-                call_user_func($route["callback"]);
-            }else{
-                header("HTTP/1.1 404 Page Not Found");
-            }
+        $methodRoute = $this->routes[$this->request->method()];
+
+        $uri = $this->request->uri();
+        if(array_key_exists($uri, $methodRoute)){
+            $route = $methodRoute[$uri];
+            call_user_func($route["callback"]);
         }else{
-            header("HTTP/1.1 400 Bad Request");
+            header("HTTP/1.1 404 Page Not Found");
         }
     }
 }
