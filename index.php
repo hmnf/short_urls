@@ -4,8 +4,16 @@ require './core/Application.php';
 
 $app = new Application;
 
-$app->router->get('/users/user', function(){
+$app->router->get('/users', function(){
     echo 'user';
+});
+
+$app->router->get('/pages', function(){
+    echo 'pages';
+});
+
+$app->router->get('/urls', function(){
+    echo 'url';
 });
 
 $app->router->post('/url', function(){

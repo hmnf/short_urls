@@ -11,36 +11,36 @@ class Router
         $this->request = new Request;
     }
 
-    public function arrayRoute(string $endPoint, callable $callbackFunc)
+    public function addRoute(string $method, string $endPoint, callable $callbackFunc)
     {
         $endPoint = rtrim($endPoint, "/");
         $endPoint = ltrim($endPoint, "/");
-        return [$endPoint => ["callback" => $callbackFunc]];
+        $this->routes[$method][$endPoint] = ["callback" => $callbackFunc];
     }
 
     public function get(string $endPoint, callable $callbackFunc)
     {
-        $this->routes["get"] = $this->arrayRoute($endPoint, $callbackFunc);
+        $this->addRoute("get", $endPoint, $callbackFunc);
     }
 
     public function post(string $endPoint, callable $callbackFunc)
     {
-        $this->routes["post"] = $this->arrayRoute($endPoint, $callbackFunc);
+        $this->addRoute("post", $endPoint, $callbackFunc);
     }
 
     public function put(string $endPoint, callable $callbackFunc)
     {
-        $this->routes["put"] = $this->arrayRoute($endPoint, $callbackFunc);
+        $this->addRoute("put", $endPoint, $callbackFunc);
     }
 
     public function patch(string $endPoint, callable $callbackFunc)
     {
-        $this->routes["patch"] = $this->arrayRoute($endPoint, $callbackFunc);
+        $this->addRoute("patch", $endPoint, $callbackFunc);
     }
 
     public function delete(string $endPoint, callable $callbackFunc)
     {
-        $this->routes["delete"] = $this->arrayRoute($endPoint, $callbackFunc);
+        $this->addRoute("delete", $endPoint, $callbackFunc);
     }
 
     public function resolve()
