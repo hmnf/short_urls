@@ -1,10 +1,6 @@
 <?php
 class User
 {
-  public function __construct($method)
-  { 
-    $this->$method();
-  }
 
   public function getAll()
   {

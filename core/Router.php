@@ -85,7 +85,12 @@ class Router
     public function callMethodFromClass(string $class, string $method)
     {
         if($class == 'User'){
-            new User($method);
+            $user = new User;
+            if(method_exists($user, $method)){
+                $user->$method();
+            }else{
+                header("HTTP/1.1 404 Page Not Found");
+            }
         }else{
             header("HTTP/1.1 404 Page Not Found");
         }
