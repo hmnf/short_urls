@@ -6,6 +6,7 @@ require './controllers/User.php';
 $app = new Application;
 
 $app->router->get('/users', [User::class, 'getAll']); // TODO: Должно  вызывать метод с названием getAll из указанного класса(User)
+$app->router->get('/user', [User::class, 'getUser']);
 
 $app->router->get('/users/:id', function(int $id){
     echo 'user - '.$id;
