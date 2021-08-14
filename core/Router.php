@@ -1,8 +1,10 @@
 <?php
 require './core/Request.php';
+require './core/Response.php';
 class Router
 {
     public Request $request;
+    public Response $response;
     protected array $routes = [
         "get" => [],
         "post" => [],
@@ -14,6 +16,7 @@ class Router
     public function __construct()
     {
         $this->request = new Request;
+        $this->response = new Response;
     }
 
     public function addRoute(string $method, string $endPoint, callable|array $callbackFunc)
@@ -25,9 +28,10 @@ class Router
         $params = [];
         $explEndPoint = explode("/", $endPoint);
 
-        foreach($explEndPoint as $key => $chunk){
-            if(str_starts_with($chunk, ":")){
-                $params[] = $uriChunks[$key];
+        foreach ($explEndPoint as $key => $chunk) {
+            if (str_starts_with($chunk, ":")) {
+                $chunk = str_replace(":", "", $chunk);
+                $params[$chunk] = $uriChunks[$key];
             }
         }
 
@@ -63,35 +67,32 @@ class Router
     {
         $methodRoute = $this->routes[$this->request->method()];
         $route = [];
-        
-        foreach($methodRoute as $routeName => $routeValue){
+
+        foreach ($methodRoute as $routeName => $routeValue) {
             $expRouteName = explode("/", $routeName);
-            if(count($expRouteName) === count($this->request->uriChunks()) && $expRouteName[0] === $this->request->uriChunks()[0]){
+            if (count($expRouteName) === count($this->request->uriChunks()) && $expRouteName[0] === $this->request->uriChunks()[0]) {
                 $route = $routeValue;
             }
         }
 
-        if(count($route) !== 0){
-            if(is_callable($route["callback"])){
+        if (count($route) !== 0) {
+            if (is_callable($route["callback"])) {
                 call_user_func_array($route["callback"], $route["params"]);
-            }else{
+            } else {
+                $this->request->storeData($route["params"]);
                 $this->callMethodFromClass($route["callback"][0], $route["callback"][1]);
             }
-        }else{
+        } else {
             header("HTTP/1.1 404 Page Not Found");
         }
     }
 
     public function callMethodFromClass(string $class, string $method)
     {
-        if($class == 'User'){
-            $user = new User;
-            if(method_exists($user, $method)){
-                $user->$method();
-            }else{
-                header("HTTP/1.1 404 Page Not Found");
-            }
-        }else{
+        $object = new $class;
+        if (method_exists($object, $method)) {
+            $object->$method($this->request, $this->response);
+        } else {
             header("HTTP/1.1 404 Page Not Found");
         }
     }

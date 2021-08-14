@@ -1,6 +1,26 @@
 <?php
 
-class Request{
+class Request
+{
+    public array $data = [];
+    public array $args = [];
+
+    public function __construct()
+    {
+        $this->args = $_GET;
+    }
+
+    public function storeData(array $data)
+    {
+        $content = file_get_contents('php://input');
+        $decoded_content = json_decode($content, TRUE);
+
+        if(!is_array($decoded_content)){
+            $decoded_content = [];
+        }
+
+        $this->data = array_merge($this->data, $data, $decoded_content, $_POST);
+    }
 
     public function method()
     {
