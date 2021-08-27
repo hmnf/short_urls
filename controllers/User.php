@@ -1,5 +1,5 @@
 <?php
-class User
+class UserController
 {
 
   public function getAll()
