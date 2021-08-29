@@ -1,8 +1,8 @@
 <?php
 
 class Response {
-    public function json(array $args): string 
+    public function json(array $args): void 
     {
-        return json_encode($args);
+        echo json_encode($args);
     }
 }
