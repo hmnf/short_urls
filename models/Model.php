@@ -4,7 +4,7 @@ class Model
 {
     private PDO $db;
     private string $tableName;
-    public array $data = [];
+    private array $data = [];
     private mixed $id_value;
 
     public function __construct()
@@ -22,7 +22,15 @@ class Model
         $this->data[$name] = $value;
     }
 
-    public static function findById(int|float|string $id)
+    public function __get(string $name): mixed
+    {
+        if (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        }
+        return null;
+    }
+
+    public static function findById(int|float|string $id): object
     {
         $className = get_called_class();
         $model = new $className;
@@ -32,25 +40,18 @@ class Model
         }
         $request = $model->db->prepare("SELECT * FROM $model->tableName WHERE $id_name = $id");
         $request->execute();
-        $queryResult = $request->fetch(PDO::FETCH_ASSOC);
-        if($queryResult){
-            $model->id_value = $id;
-            foreach($queryResult as $key => $value){
-                $model->$key = $value;
-            }
-            return $model;
-        }else{
-            return false;
-        }
+        $u = $request->fetchObject($className);
+        $u->id_value = $id;
+        return $u;
     }
 
-    public function store(): void
+    public function store(): bool
     {
 
         $classKeys = array_keys($this->data);
         $classKeysColons = [];
         foreach ($classKeys as $keys) {
-            $keys = ':' . $keys;
+            $keys = ":$keys";
             $classKeysColons[] = $keys;
         }
         $classKeysColons = implode(',', $classKeysColons);
@@ -60,20 +61,13 @@ class Model
             VALUES($classKeysColons)"
         );
 
-
-
-        if (!$this->isEmpty($this->data)) {
-            foreach ($this->data as $key => $value) {
-                $prep->bindValue($key, $value);
-            }
-            $prep->execute();
-        } else {
-            header("HTTP/1.1 400 Bad Request");
-            echo "Fill All Of The Fields";
+        foreach ($this->data as $key => $value) {
+            $prep->bindValue($key, $value);
         }
+        return $prep->execute();
     }
 
-    public function update(array $changedData)
+    public function update(array $changedData): bool
     {
         $id_name = 'id';
         if ($this->id_name) {
@@ -81,34 +75,29 @@ class Model
         }
         $array_keys = [];
         $array_keys_colons = [];
-        foreach($changedData as $key => $value){
+        foreach ($changedData as $key => $value) {
             $array_keys[] = $key;
-            $key = ':'. $key;
+            $key = ":$key";
             $array_keys_colons[] = $key;
         }
         $count = count($array_keys);
-        for($i = 0; $i < $count; $i++){
-            $arraySQL[] = $array_keys[$i].'='.$array_keys_colons[$i];
+        for ($i = 0; $i < $count; $i++) {
+            $arraySQL[] = "{$array_keys[$i]}={$array_keys_colons[$i]}";
         }
-        
+
         $arraySQL = implode(',', $arraySQL);
 
         $prep = $this->db->prepare(
             "UPDATE $this->tableName SET $arraySQL WHERE $id_name = $this->id_value"
         );
 
-        if (!$this->isEmpty($changedData)) {
-            foreach ($changedData as $key => $value) {
-                $prep->bindValue($key, $value);
-            }
-            $prep->execute();
-        } else {
-            header("HTTP/1.1 400 Bad Request");
-            echo "Fill All Of The Fields";
+        foreach ($changedData as $key => $value) {
+            $prep->bindValue($key, $value);
         }
+        return $prep->execute();
     }
-        
-    
+
+
 
     public function delete(): bool
     {
@@ -117,8 +106,7 @@ class Model
             $id_name = $this->id_name;
         }
         $request = $this->db->prepare("DELETE FROM $this->tableName WHERE $id_name = $this->id_value");
-        $request->execute();
-        return true;
+        return $request->execute();
     }
 
     public static function findAll(): array

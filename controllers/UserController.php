@@ -44,8 +44,9 @@ class UserController
   {
     $id = $request->data['id'];
     $user = User::findById($id);
-    $changedData["first_name"] = $request->data["first_name"];
-    $changedData["last_name"] = $request->data["last_name"];
-    $user->update($changedData);
+    if(array_key_exists('password', $request->data)){
+      $request->data['password'] = password_hash($request->data['password'], PASSWORD_DEFAULT);
+    }
+    $user->update($request->data);
   }
 }
