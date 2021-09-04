@@ -4,7 +4,7 @@ class Model
 {
     private PDO $db;
     private string $tableName;
-    private array $data = [];
+    public array $data = [];
     private mixed $id_value;
 
     public function __construct()
@@ -73,10 +73,42 @@ class Model
         }
     }
 
-    public function update()
+    public function update(array $changedData)
     {
-    
+        $id_name = 'id';
+        if ($this->id_name) {
+            $id_name = $this->id_name;
+        }
+        $array_keys = [];
+        $array_keys_colons = [];
+        foreach($changedData as $key => $value){
+            $array_keys[] = $key;
+            $key = ':'. $key;
+            $array_keys_colons[] = $key;
+        }
+        $count = count($array_keys);
+        for($i = 0; $i < $count; $i++){
+            $arraySQL[] = $array_keys[$i].'='.$array_keys_colons[$i];
+        }
+        
+        $arraySQL = implode(',', $arraySQL);
+
+        $prep = $this->db->prepare(
+            "UPDATE $this->tableName SET $arraySQL WHERE $id_name = $this->id_value"
+        );
+
+        if (!$this->isEmpty($changedData)) {
+            foreach ($changedData as $key => $value) {
+                $prep->bindValue($key, $value);
+            }
+            $prep->execute();
+        } else {
+            header("HTTP/1.1 400 Bad Request");
+            echo "Fill All Of The Fields";
+        }
     }
+        
+    
 
     public function delete(): bool
     {

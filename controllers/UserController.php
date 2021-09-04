@@ -33,7 +33,8 @@ class UserController
     $user = User::findById($id);
     if($user){
       // $user->delete();
-      return $response->json(['message' => "User $user->first_name deleted"]);
+      $first_name = $user->data["first_name"];
+      return $response->json(['message' => "User $first_name deleted"]);
     } 
     
     return $response->json(['message' => "User not found"]);
@@ -43,9 +44,8 @@ class UserController
   {
     $id = $request->data['id'];
     $user = User::findById($id);
-
-    $request->data['first_name'];
-
-    $user->update($request->data);
+    $changedData["first_name"] = $request->data["first_name"];
+    $changedData["last_name"] = $request->data["last_name"];
+    $user->update($changedData);
   }
 }
