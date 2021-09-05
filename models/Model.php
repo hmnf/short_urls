@@ -116,15 +116,4 @@ class Model
         $request->execute();
         return $request->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    public function isEmpty(array $class)
-    {
-        foreach ($class as $elem) {
-            if (empty($elem)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
 }

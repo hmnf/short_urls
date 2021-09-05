@@ -9,7 +9,13 @@ class UserController
 
   public function getUser(Request $request, Response $response)
   {
-    $user = User::findById($request->data['id']);
+    $user = User::findById($request->data['id'])->with('posts')->orderBy('created_at', 'DESC')->limit('10')->get();
+
+    foreach($user->posts as $post){
+      
+    }
+
+    $user->first_name;
     
     return $user;
   }
