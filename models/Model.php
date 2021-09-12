@@ -5,11 +5,17 @@ class Model
     private PDO $db;
     private string $tableName;
     private array $data = [];
-    private mixed $id_value;
+    private array $extraData = [];
+    private string $id_name = 'id';
 
     public function __construct()
     {
         $this->db = (new Database)->pdo;
+
+        if($this->custom_id){
+            $this->id_name = $this->custom_id;
+        }
+
         if ($this->table) {
             $this->tableName = $this->table;
         } else {
@@ -30,18 +36,28 @@ class Model
         return null;
     }
 
+    public function get()
+    {
+        
+    }
+    
+    protected function hasMany(string $className)
+    {
+        $tableName = strtolower($className) . 's';
+        $id_name = strtolower(get_called_class()) . '_'.'id';
+        $request = $this->db->prepare("SELECT * FROM $tableName WHERE $id_name = $this->id");
+        $request->execute();
+        $u = $request->fetchObject($this->className);
+        return $u;
+    }
+
     public static function findById(int|float|string $id): object
     {
         $className = get_called_class();
         $model = new $className;
-        $id_name = 'id';
-        if ($model->id_name) {
-            $id_name = $model->id_name;
-        }
-        $request = $model->db->prepare("SELECT * FROM $model->tableName WHERE $id_name = $id");
+        $request = $model->db->prepare("SELECT * FROM $model->tableName WHERE $model->id_name = $id");
         $request->execute();
         $u = $request->fetchObject($className);
-        $u->id_value = $id;
         return $u;
     }
 
@@ -69,10 +85,6 @@ class Model
 
     public function update(array $changedData): bool
     {
-        $id_name = 'id';
-        if ($this->id_name) {
-            $id_name = $this->id_name;
-        }
         $array_keys = [];
         $array_keys_colons = [];
         foreach ($changedData as $key => $value) {
@@ -86,9 +98,10 @@ class Model
         }
 
         $arraySQL = implode(',', $arraySQL);
+        $id_name = $this->id_name;
 
         $prep = $this->db->prepare(
-            "UPDATE $this->tableName SET $arraySQL WHERE $id_name = $this->id_value"
+            "UPDATE $this->tableName SET $arraySQL WHERE $id_name = {$this->$id_name}"
         );
 
         foreach ($changedData as $key => $value) {
@@ -101,11 +114,8 @@ class Model
 
     public function delete(): bool
     {
-        $id_name = 'id';
-        if ($this->id_name) {
-            $id_name = $this->id_name;
-        }
-        $request = $this->db->prepare("DELETE FROM $this->tableName WHERE $id_name = $this->id_value");
+        $id_name = $this->id_name;
+        $request = $this->db->prepare("DELETE FROM $this->tableName WHERE $id_name = {$this->$id_name}");
         return $request->execute();
     }
 

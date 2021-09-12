@@ -9,15 +9,20 @@ class UserController
 
   public function getUser(Request $request, Response $response)
   {
-    $user = User::findById($request->data['id'])->with('posts')->orderBy('created_at', 'DESC')->limit('10')->get();
+    $user = User::findById($request->data['id']);
+    $user->posts();
 
-    foreach($user->posts as $post){
+    // foreach($user->posts as $post){
       
-    }
+    // }
 
-    $user->first_name;
+    // $user->first_name;
+
+    echo '<pre>';
+    var_dump($user);
+    echo '</pre>';
     
-    return $user;
+    // return $response->json(['user' => $user]);
   }
 
   public function createUser(Request $request, Response $response)
@@ -39,8 +44,7 @@ class UserController
     $user = User::findById($id);
     if($user){
       // $user->delete();
-      $first_name = $user->data["first_name"];
-      return $response->json(['message' => "User $first_name deleted"]);
+      return $response->json(['message' => "User $user->first_name deleted"]);
     } 
     
     return $response->json(['message' => "User not found"]);
