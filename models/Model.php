@@ -7,10 +7,15 @@ class Model
     private array $data = [];
     private array $extraData = [];
     private string $id_name = 'id';
+    private string $query;
+    private string $foreighClassName;
+    private string $relationsColumnName;
 
     public function __construct()
     {
         $this->db = (new Database)->pdo;
+
+        $this->relationsColumnName = strtolower(get_called_class()) . '_id';
 
         if($this->custom_id){
             $this->id_name = $this->custom_id;
@@ -38,17 +43,35 @@ class Model
 
     public function get()
     {
-        
+        $request = $this->db->prepare($this->query);
+        $request->execute();
+        return $request->fetchAll(PDO::FETCH_CLASS, $this->foreignClassName);
+    }
+
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
+    public function orderBy(string $columnName, string $order)
+    {
+        $this->query .= " ORDER BY $columnName $order";
+        return $this;
     }
     
-    protected function hasMany(string $className)
+    protected function hasMany(string $className, string $relationColumn = null)
     {
-        $tableName = strtolower($className) . 's';
-        $id_name = strtolower(get_called_class()) . '_'.'id';
-        $request = $this->db->prepare("SELECT * FROM $tableName WHERE $id_name = $this->id");
-        $request->execute();
-        $u = $request->fetchObject($this->className);
-        return $u;
+        $model = new $className;
+        $tableName = $model->getTableName();
+        
+
+        if($relationColumn){
+            $this->relationsColumnName = $relationColumn;
+        }
+
+        $this->foreignClassName = $className;
+        $this->query = "SELECT * FROM $tableName WHERE $this->relationsColumnName = $this->id";
+        return $this;
     }
 
     public static function findById(int|float|string $id): object

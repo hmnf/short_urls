@@ -10,19 +10,12 @@ class UserController
   public function getUser(Request $request, Response $response)
   {
     $user = User::findById($request->data['id']);
-    $user->posts();
+    // $user = User::findById($request->data['id'])->with('posts')->get();
+    // * возращает пользователя с постами, которые находятся в свойстве posts
 
-    // foreach($user->posts as $post){
-      
-    // }
-
-    // $user->first_name;
-
-    echo '<pre>';
-    var_dump($user);
-    echo '</pre>';
+    $posts = $user->posts()->orderBy('id', 'desc')->get();
     
-    // return $response->json(['user' => $user]);
+    return $response->json(['posts' => $posts]);
   }
 
   public function createUser(Request $request, Response $response)
