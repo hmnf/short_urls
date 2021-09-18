@@ -1,7 +1,7 @@
 <?php
 class UserController
 {
-
+ 
   public function getAll()
   {
     echo 'get all users';
@@ -9,13 +9,10 @@ class UserController
 
   public function getUser(Request $request, Response $response)
   {
-    $user = User::findById($request->data['id']);
-    // $user = User::findById($request->data['id'])->with('posts')->get();
-    // * возращает пользователя с постами, которые находятся в свойстве posts
-
-    $posts = $user->posts()->orderBy('id', 'desc')->get();
+    // $user = User::findById($request->data['id']);
+    $user = User::findById($request->data['id'])->with('posts')->get();
     
-    return $response->json(['posts' => $posts]);
+    return $response->json(['user' => $user]);
   }
 
   public function createUser(Request $request, Response $response)

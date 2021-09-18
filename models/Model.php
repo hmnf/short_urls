@@ -45,12 +45,17 @@ class Model
     {
         $request = $this->db->prepare($this->query);
         $request->execute();
-        return $request->fetchAll(PDO::FETCH_CLASS, $this->foreignClassName);
+        $this->posts[] = $request->fetchAll(PDO::FETCH_CLASS, $this->foreignClassName);
     }
 
     public function getTableName()
     {
         return $this->tableName;
+    }
+
+    public function getData()
+    {
+        return $this->data;
     }
 
     public function orderBy(string $columnName, string $order)
@@ -59,18 +64,26 @@ class Model
         return $this;
     }
     
-    protected function hasMany(string $className, string $relationColumn = null)
-    {
-        $model = new $className;
-        $tableName = $model->getTableName();
+    // protected function hasMany(string $className, string $relationColumn = null)
+    // {
+    //     $model = new $className;
+    //     $tableName = $model->getTableName();
         
 
-        if($relationColumn){
-            $this->relationsColumnName = $relationColumn;
-        }
+    //     if($relationColumn){
+    //         $this->relationsColumnName = $relationColumn;
+    //     }
 
-        $this->foreignClassName = $className;
-        $this->query = "SELECT * FROM $tableName WHERE $this->relationsColumnName = $this->id";
+    //     $this->foreignClassName = $className;
+    //     $this->query = "SELECT * FROM $tableName WHERE $this->relationsColumnName = $this->id";
+    //     return $this;
+    // }
+
+    public function with(string $className)
+    {
+        $this->query = "SELECT * FROM $className WHERE $this->relationsColumnName = $this->id";
+        $this->$className = [];
+        $this->foreighClassName = $className;
         return $this;
     }
 
